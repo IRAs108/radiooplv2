@@ -1,0 +1,186 @@
+﻿{% extends "base.html" %}
+{% load static %}
+
+{% block 'scri' %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/mp3-player-button.css' %}" />
+<script type="text/javascript" src="{% static 'script/soundmanager2.js' %}"></script>
+<script type="text/javascript" src="{% static 'script/mp3-player-button.js' %}"></script>
+{% endblock %}
+
+
+{% block 'content' %}
+<div class="container">
+    <form onchange="">
+        <label for="stations">Wybierz stacje:</label>
+        <select id="stations" name="s">
+          <option value="1">Radio Bielsko</option>
+          <option value="2">Express FM</option>
+          <option value="3">Mega Radio</option>
+          <option value="4">Disco Radio</option>
+        </select>
+        <input type="submit">
+      </form>
+
+<script>
+
+
+</script>
+
+
+<div style="overflow:hidden;">
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-8">
+                <div id="datetimepicker12"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" async>
+        let text;
+            $(function () {
+                $('#datetimepicker12').datetimepicker({
+                    locale: 'pl',
+                    inline: true,
+                    sideBySide: true
+
+                });
+
+            });
+            $("#datetimepicker12").on("dp.change", function (e) {
+                year = e.date._d.getFullYear();
+                month = e.date._d.getMonth();
+                day = e.date._d.getDate();
+                hours = e.date._d.getHours();
+                console.log(year, month, day, hours);
+                url = '{% url "datepicksong" %}'+'&y=' + year + '&m=' + month + '&d=' + day + '&h=' + hours;
+                console.log(url);
+                station = 
+
+                // $.getJSON(url, function (data) {
+                //     console.log(data[0]);
+
+            });      
+                $.ajax({
+                    url: "{% url 'datepicksong' %}",
+                    method: "get",
+                    dataType: "json",
+                    data: {
+                        s: 2,
+                        y: year,
+                        m: month,
+                        d: day,
+                        h: hours,
+
+                        success: function (data) {
+                            var names = data
+                            console.log(data);
+                        }
+                    }
+                })
+                    .done(res => {
+                        var testt = document.querySelectorAll("#song");
+
+                        var text = '';
+                        for (i = 0; i < 20; i++) {
+                   
+
+                            var d = new Date(res[i]['fields']['date']);
+                            m = d.getMinutes();
+                            if (m < 10) {
+                                mm = "0" + m.toString();
+                            }
+                            else {
+                                mm = m.toString();
+                            }
+                            text = d.getHours() + ':' + mm + ' - ' + res[i]['fields']['rds'];
+                            songpk = res[i]['fields']['song'];
+
+                            test = GetSong(parseInt(songpk))
+                            console.log(test);
+                            //text += test['ds_year'] + '<br>';
+                            //text += '<img class="youtube" rel="'+'https://www.youtube.com/watch?v='+test['clip'] +'" src="{% static "image/youtube.png" %}"></img>' + '<br>';
+							testt[i].innerHTML = text;
+
+
+
+
+
+                        }
+
+                        //document.getElementById("test").innerHTML = text;
+
+
+                    });
+
+
+                // JSON result in `data` variable
+
+
+
+
+          
+
+        let result
+
+        function GetSong(pkk) {
+            let res2;
+            //console.log(pkk);
+            $.ajax({
+                url: "{% url 'getsongaj' %}",
+                method: "get",
+                dataType: "json",
+                async: !1,
+                data: {
+                    s: pkk,
+
+
+                },
+                success: function(response) { return response; }
+            })
+                .always(res => {
+                    //console.log(res[0]['fields']);
+                    res3 = res[0]['fields'];
+                    
+
+                });
+            
+            //console.log(result);
+            return res3;
+        }
+
+        function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+    </script>
+</div>
+
+    <div id="test">
+        <div id="song">Song 1</div>
+
+        <div id="song">Song 2</div>
+        <div id="song">Song 3</div>
+        <div id="song">Song 4</div>
+        <div id="song">Song 5</div>   
+        <div id="song">Song 6</div>
+        <div id="song">Song 7</div>
+        <div id="song">Song 8</div>
+        <div id="song">Song 9</div>
+        <div id="song">Song 10</div>
+        <div id="song">Song 11</div>
+        <div id="song">Song 12</div>
+        <div id="song">Song 13</div>
+        <div id="song">Song 14</div>
+        <div id="song">Song 15</div>
+        <div id="song">Song 16</div>
+        <div id="song">Song 17</div>
+        <div id="song">Song 18</div>
+        <div id="song">Song 19</div>
+        <div id="song">Song 20</div>
+
+
+    </div>
+
+
+</div>
+
+{% endblock %}

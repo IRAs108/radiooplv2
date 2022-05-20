@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+
+{% block 'scri' %}
+
+
+
+
+<title>RADIOO.PL - {{ object.name }}</title>
+<link rel="stylesheet" type="text/css" href="{% static 'css/mp3-player-button.css' %}" />
+<script type="text/javascript" src="{% static 'scripts/soundmanager2.js' %}"></script>
+<script type="text/javascript" src="{% static 'scripts/mp3-player-button.js' %}"></script>
+
+
+{% endblock %}
+
+
+
+
+{% block 'content' %}
+<br>
+<div id="jquery_jplayer"></div>
+
+<div class="container">
+
+<div class="row">
+
+    <div class="col-sm">
+    {% if object.img %}<img src='{% static "/images/upload/" %}{{ object.img }}' width="200"  />{% else %}<h2>{{ object.name }}</h2>{% endif %}
+
+<br>
+{{ object.info }}
+
+        </div>
+
+<div class="col-sm">
+
+</div>
+<div class="col-sm"></div>
+Player:
+    <div><center>
+    <img src="{% static 'muxrb/brak.png' %}" width="200" class="img-fluid song-cover rounded-circle" alt="alternative" id="imgcov"><br>
+<div class="rds">RDS</div>
+        <img id="playStation" title="Kliknij aby odsłuchać" src='{% static "scrobbell/img/buttons/play.png" %}' width="64" height="64" onclick="PrPlay('{{ object.stream.first.url}}', this.id);" />
+</center>
+</div>
+</div>
+
+
+  <div class="row">
+
+
+    <div class="col-sm">
+        <h4>Ostatnio emitowano:</h4>
+
+
+
+ <div id="history-list">
+<table>
+{% for data in historia %}
+
+<tr>
+    {% if forloop.first %}<h2>{{ data.date|date:'l Y-m-d'}}</h2>{% endif %}
+
+    <td>    {% if data.song.sp_prev != "None" %}
+    <p><a class="sm2_button" href="{{ data.song.sp_prev }}.mp3" ></a></p>
+    {% endif %}</td>
+    <td><h2>
+
+    {{ data.date|date:'H:i'}} </h2></td>
+
+   <td>
+       {% if data.song.clip != "None" %}<img class="youtube" rel="{{ data.song.clip }}" src="{% static 'image/youtube.png' %}"></img>{% endif %}
+       {% if data.spo != "None" %}<a href="https://open.spotify.com/track/{{ data.spo }}"><img src="{% static 'image/spotify-sketch.png' %}"></img></a>{% endif %}</td>
+<td>    {{ data.rds }} <a href="{% url 'song_detail' data.song.slug %}" >(więcej)</a>
+</td>
+
+</tr>
+
+{% endfor %}
+    </div>
+<script type="text/javascript">
+	$(function () {
+		$(".youtube").YouTubeModal({autoplay:1, width:640, height:480});
+	});
+</script>
+</table>
+ </div>
+
+
+    </div>
+
+          <div class="col-sm">
+      <h4>Toplista:</h4>
+
+
+                <table>
+              {% for song in toplist %}
+                    <tr>
+             <td> {% if song.sp_prev != "None" %}<p><a class="sm2_button" href="{{ song.sp_prev }}.mp3" ></a></p>{% endif %}</td>
+                        <td>
+       {% if song.clip != "None" %}<img class="youtube" rel="{{ song.clip }}" src="{% static 'image/youtube.png' %}"></img>{% endif %}
+       {% if song.sp_uri != "None" %}<a href="https://open.spotify.com/track/{{ song.sp_uri }}"><img src="{% static 'image/spotify-sketch.png' %}"></img></a>{% endif %}</td>
+
+
+                        <td>{{ song }} <a href="{% url 'song_detail' song.slug %}" >(więcej)</a></td>
+              {% endfor %}
+                    </tr>
+                </table>
+              <br>
+                    <h4>Nowości:</h4>
+
+
+                <table>
+              {% for song in newsong %}
+                    <tr>
+             <td> {% if song.sp_prev != "None" %}<p><a class="sm2_button" href="{{ song.sp_prev }}.mp3" ></a></p>{% endif %}</td>
+                        <td>
+       {% if song.clip != "None" %}<img class="youtube" rel="{{ song.clip }}" src="{% static 'image/youtube.png' %}"></img>{% endif %}
+       {% if song.sp_uri != "None" %}<a href="https://open.spotify.com/track/{{ song.sp_uri }}"><img src="{% static 'image/spotify-sketch.png' %}"></img></a>{% endif %}</td>
+
+
+                        <td>{{ song }} <a href="{% url 'song_detail' song.slug %}" >(więcej)</a></td>
+              {% endfor %}
+                    </tr>
+                </table>
+
+                            <br>
+                    <h4>Unikalne dla stacji:</h4>
+
+
+                <table>
+              {% for song in unique %}
+                    <tr>
+             <td> {% if song.sp_prev != "None" %}<p><a class="sm2_button" href="{{ song.sp_prev }}.mp3" ></a></p>{% endif %}</td>
+                        <td>
+       {% if song.clip != "None" %}<img class="youtube" rel="{{ song.clip }}" src="{% static 'image/youtube.png' %}"></img>{% endif %}
+       {% if song.sp_uri != "None" %}<a href="https://open.spotify.com/track/{{ song.sp_uri }}"><img src="{% static 'image/spotify-sketch.png' %}"></img></a>{% endif %}</td>
+
+
+                        <td>{{ song }} <a href="{% url 'song_detail' song.slug %}" >(więcej)</a></td>
+              {% endfor %}
+                    </tr>
+                </table>
+
+    </div>
+
+    
+<script>
+
+
+
+var last;
+
+
+
+
+var i;
+   function GetLastSong(){
+
+$.ajax({
+    url : "{% url 'now' %}",
+    method : "get",
+    dataType : "json",
+    data : {
+        st : {{ object.pk }}
+
+    }
+})
+.done(res => {
+
+if (last!=res['rds']){
+console.log(last);
+last=res['rds'];
+$(".rds").html(res['artist']+"<br>"+res['title']);
+
+    var covimg;
+    var covimgi;
+    covimg = res['img'];
+    if (covimg==="None")
+    {
+        covimgi = '{% static 'muxrb/brak.png' %}';
+    }
+    else
+    {
+        covimgi = covimg;
+    }
+
+    document.getElementById("imgcov").src=covimgi;
+
+}
+});
+
+}
+  GetLastSong();
+const time = setInterval(function() {
+    GetLastSong();
+
+}, 5000);
+</script>
+
+<script type="text/javascript">
+	$(function () {
+		$(".youtube").YouTubeModal({autoplay:0, width:640, height:480});
+	});
+</script>
+
+
+
+
+
+
+
+  </div>
+
+
+
+</div>
+
+
+
+
+{% endblock %}
+
+{% block domready %}
+ var page = 1;
+ var empty_page = false;
+ var block_request = false;
+ $(window).scroll(function() {
+ var margin = $(document).height() - $(window).height() - 200;
+ if ($(window).scrollTop() > margin && empty_page == false &&
+block_request == false) {
+ block_request = true;
+ page += 1;
+ $.get('{% url "history_list" %}'+'?st={{ object.pk }}&page=' + page, function(data) {
+ if(data == '') {
+ empty_page = true;
+ }
+ else {
+ block_request = false;
+ $('#history-list').append(data);
+ }
+ });
+ }
+ });
+{% endblock %}
